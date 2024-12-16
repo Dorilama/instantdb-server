@@ -1,0 +1,22 @@
+{
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "sandbox"],
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "checkJs": false,
+    "module": "commonjs",
+    "outDir": "dist",
+    "rootDir": "src",
+    "sourceMap": true,
+    "target": "es2015",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
+    "stripInternal": true,
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "strict": true
+  }
+}
