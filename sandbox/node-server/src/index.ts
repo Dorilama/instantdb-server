@@ -1,19 +1,7 @@
 import { init, i, id, type InstaQLEntity } from "@dorilama/instantdb-server";
+import schema from "../instant.schema";
 
 const APP_ID = process.env["INSTANT_APP_ID"]!;
-
-const schema = i.schema({
-  entities: {
-    todos: i.entity({
-      text: i.string(),
-      done: i.boolean(),
-      createdAt: i.number(),
-      test: i.number(),
-    }),
-  },
-  links: {},
-  rooms: {},
-});
 
 type Todo = InstaQLEntity<typeof schema, "todos">;
 

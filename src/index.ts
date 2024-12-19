@@ -1,5 +1,5 @@
 import { signal, computed, effect, Signal } from "@preact/signals-core";
-import { init_experimental, i, id } from "@dorilama/instantdb-byos";
+import { init as instantInit, i, id } from "@dorilama/instantdb-byos";
 import type {
   SignalFunctions,
   MaybeSignal,
@@ -28,7 +28,7 @@ const toValue: SignalFunctions["toValue"] = (maybeSignal) => {
 function init<
   Schema extends InstantSchemaDef<any, any, any> = InstantUnknownSchema
 >(config: InstantConfig<Schema>) {
-  const db = init_experimental(
+  const db = instantInit(
     config,
     { signal, computed, effect, toValue },
     {
