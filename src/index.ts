@@ -67,12 +67,19 @@ function init<
     query: MaybeSignal<Q | null>,
     cb: (ctx: {
       res: useQueryRes<Q>;
-      query: Signal<null | Q> | null;
+      query: Signal<Q | null>;
       db: typeof db;
     }) => (() => void) | void
   ) {
-    const isQuerySignal = query instanceof Signal;
-    const _query: Signal<null | Q> = isQuerySignal ? query : signal(query);
+    const _query: Signal<Q | null> = signal(toValue(query));
+
+    let stopQueryEffect = () => {};
+
+    if (query instanceof Signal) {
+      stopQueryEffect = effect(() => {
+        _query.value = query.value;
+      });
+    }
 
     const result = db.useQuery(_query);
 
@@ -83,12 +90,13 @@ function init<
         pageInfo: result.pageInfo.value,
         error: result.error.value,
       };
-      return cb({ res, query: isQuerySignal ? null : _query, db });
+      return cb({ res, query: _query, db });
     });
 
     function cleanup() {
       result.stop();
       stopEffect();
+      stopQueryEffect();
     }
 
     return cleanup;
