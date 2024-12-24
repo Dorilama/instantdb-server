@@ -1,6 +1,6 @@
 {
   "name": "@dorilama/instantdb-server",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Unofficial Instant DB reactive server",
   "author": "dorilama",
   "license": "ISC",

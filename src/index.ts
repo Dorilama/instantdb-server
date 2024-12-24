@@ -139,5 +139,5 @@ function init<
   return { db, onQuery, onAuth };
 }
 
-export { i, id, init };
+export { i, id, init, signal, computed, effect, Signal };
 export type { SignalFunctions, MaybeSignal, InstaQLEntity };
