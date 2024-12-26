@@ -13,7 +13,7 @@ This package is an experiment. It bends the sdk to use it for something it's not
 - using `@preact/signals-core` for reactivity
 - starting from the simple assumption that network status is always connected and no data gets stored on the server
 - subscribe to a query like `useQuery` and execute a callback every time its state changes
-- query can be dynamically changed, the subscription updates automatically
+- query can be dynamically changed, the subscription updates automatically. on a long process it's probably better to keep it at a minimum because continuous frequent query changes will increase the memory used.
 - subscribe to auth like `useAuth` and execute a callback when its state changes
 
 ---
