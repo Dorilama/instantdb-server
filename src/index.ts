@@ -1,16 +1,11 @@
+// Notice:
+// adapted from [@instantdb/react-native](https://github.com/instantdb/instant/blob/main/client/packages/react-native/README.md)
+// see instantdb-license.md for license
+
 import { signal, computed, effect, Signal } from "@preact/signals-core";
-import { init as instantInit, i, id } from "@dorilama/instantdb-byos";
-import type {
-  SignalFunctions,
-  MaybeSignal,
-  InstantSchemaDef,
-  InstantUnknownSchema,
-  InstantConfig,
-  InstaQLParams,
-  InstaQLEntity,
-} from "@dorilama/instantdb-byos";
-import NetworkListener from "./NetworkListener";
-import MemosyStorage from "./MemoryStorage";
+import AlwaysOnline from "./AlwaysOnline";
+import NoStorage from "./NoStorage";
+import version from "./version";
 
 const toValue: SignalFunctions["toValue"] = (maybeSignal) => {
   if (maybeSignal instanceof Signal) {
@@ -19,125 +14,136 @@ const toValue: SignalFunctions["toValue"] = (maybeSignal) => {
   return maybeSignal;
 };
 
+import { InstantByosAbstractDatabase } from "@dorilama/instantdb-byos";
+import type {
+  SignalFunctions,
+  MaybeSignal,
+  BackwardsCompatibleSchema,
+  IInstantDatabase,
+  Config,
+  Query,
+  QueryResponse,
+  InstantObject,
+  AuthState,
+  User,
+} from "@dorilama/instantdb-byos";
+
+import { i, id, tx, lookup } from "@instantdb/core";
+import type {
+  RoomSchemaShape,
+  InstantQuery,
+  InstantQueryResult,
+  InstantSchema,
+  InstantSchemaDatabase,
+  ConnectionStatus,
+
+  // schema types
+  AttrsDefs,
+  CardinalityKind,
+  DataAttrDef,
+  EntitiesDef,
+  EntitiesWithLinks,
+  EntityDef,
+  InstantGraph,
+  LinkAttrDef,
+  LinkDef,
+  LinksDef,
+  ResolveAttrs,
+  ValueTypes,
+  InstantEntity,
+  ConfigWithSchema,
+  InstaQLEntity,
+  InstaQLResult,
+  InstantConfig,
+  InstantSchemaDef,
+  InstantUnknownSchema,
+  InstantRules,
+  UpdateParams,
+  LinkParams,
+} from "@instantdb/core";
+
 /**
+ *
  * The first step: init your application!
  *
  * Visit https://instantdb.com/dash to get your `appId` :)
  *
+ * @example
+ *  import { init } from "@instantdb/react-native"
+ *
+ *  const db = init({ appId: "my-app-id" })
+ *
+ *  // You can also provide a schema for type safety and editor autocomplete!
+ *
+ *  import { init } from "@instantdb/react-native"
+ *  import schema from ""../instant.schema.ts";
+ *
+ *  const db = init({ appId: "my-app-id", schema })
+ *
+ *  // To learn more: https://instantdb.com/docs/modeling-data
  */
 function init<
   Schema extends InstantSchemaDef<any, any, any> = InstantUnknownSchema
 >(config: InstantConfig<Schema>) {
-  const db = instantInit(
+  return new InstantByosServerDatabase<Schema>(
     config,
     { signal, computed, effect, toValue },
     {
-      Storage: MemosyStorage,
-      NetworkListener,
-      onBeforeInit() {
-        //@ts-ignore
-        globalThis.window = {};
-      },
+      "@dorilama/instantdb-server": version,
     }
   );
-
-  type useQueryState<Q extends InstaQLParams<Schema>> = Omit<
-    ReturnType<typeof db.useQuery<Q>>,
-    "stop"
-  >;
-  type useQueryRes<Q extends InstaQLParams<Schema>> = {
-    [K in keyof useQueryState<Q>]: useQueryState<Q>[K]["value"];
-  };
-
-  /**
-   *
-   * Listen to reactive data using the same query you would use for useQuery
-   *
-   * the query can be an object or a signal/computed
-   * if an object it will be converted into a signal and be available in the context
-   *
-   * the query is dynamic: mutating the query signal will automatically subscribe to the updated query
-   *
-   * the callback gets executed when the state of the query subscription changes
-   *
-   * returns a cleanup function to unsubscribe
-   *
-   */
-  function onQuery<Q extends InstaQLParams<Schema>>(
-    query: MaybeSignal<Q | null>,
-    cb: (ctx: {
-      res: useQueryRes<Q>;
-      query: Signal<Q | null>;
-      db: typeof db;
-    }) => (() => void) | void
-  ) {
-    const _query: Signal<Q | null> = signal(toValue(query));
-
-    let stopQueryEffect = () => {};
-
-    if (query instanceof Signal) {
-      stopQueryEffect = effect(() => {
-        _query.value = query.value;
-      });
-    }
-
-    const result = db.useQuery(_query);
-
-    const stopEffect = effect(() => {
-      const res = {
-        isLoading: result.isLoading.value,
-        data: result.data.value,
-        pageInfo: result.pageInfo.value,
-        error: result.error.value,
-      };
-      return cb({ res, query: _query, db });
-    });
-
-    function cleanup() {
-      result.stop();
-      stopEffect();
-      stopQueryEffect();
-    }
-
-    return cleanup;
-  }
-
-  type useAuthState = Omit<ReturnType<typeof db.useAuth>, "stop">;
-  type useAuthRes = {
-    [K in keyof useAuthState]: useAuthState[K]["value"];
-  };
-
-  /**
-   *
-   * Listen to auth state
-   *
-   * returns a cleanup function to unsubscribe
-   *
-   */
-  function onAuth(
-    cb: (ctx: { res: useAuthRes; db: typeof db }) => (() => void) | void
-  ) {
-    const result = db.useAuth();
-
-    const stopEffect = effect(() => {
-      const res = {
-        isLoading: result.isLoading.value,
-        user: result.user.value,
-        error: result.error.value,
-      };
-      return cb({ res, db });
-    });
-
-    function cleanup() {
-      result.stop();
-      stopEffect();
-    }
-
-    return cleanup;
-  }
-
-  return { db, onQuery, onAuth };
 }
 
-export { i, id, init, signal, computed, effect, Signal };
-export type { SignalFunctions, MaybeSignal, InstaQLEntity };
+class InstantByosServerDatabase<
+  Schema extends InstantSchemaDef<any, any, any>
+> extends InstantByosAbstractDatabase<Schema> {
+  static Storage = NoStorage;
+  static NetworkListener = AlwaysOnline;
+  constructor(
+    ...args: ConstructorParameters<typeof InstantByosAbstractDatabase<Schema>>
+  ) {
+    //@ts-ignore
+    globalThis.window = {};
+    super(...args);
+  }
+}
+
+export { init, id, tx, lookup, i, signal, computed, effect, Signal };
+export type {
+  Config,
+  Query,
+  QueryResponse,
+  InstantObject,
+  User,
+  AuthState,
+  ConnectionStatus,
+  InstantQuery,
+  InstantQueryResult,
+  InstantSchema,
+  InstantSchemaDatabase,
+  IInstantDatabase,
+  InstantEntity,
+  RoomSchemaShape,
+
+  // schema types
+  AttrsDefs,
+  CardinalityKind,
+  DataAttrDef,
+  EntitiesDef,
+  EntitiesWithLinks,
+  EntityDef,
+  InstantGraph,
+  LinkAttrDef,
+  LinkDef,
+  LinksDef,
+  ResolveAttrs,
+  ValueTypes,
+  InstaQLEntity,
+  InstaQLResult,
+  InstantSchemaDef,
+  InstantUnknownSchema,
+  BackwardsCompatibleSchema,
+  InstantRules,
+  UpdateParams,
+  LinkParams,
+};
