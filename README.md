@@ -8,6 +8,8 @@ This package is an experiment. It bends the sdk to use it for something it's not
 
 It is also a good way for me to try think with a different perspective, so maybe you can enjoy it too. Have fun.
 
+> warning! the library and its use will change on new versions while I explore different ways to use instant on the server
+
 ---
 
 > see `sandbox/node-server/src/index.ts` for an example
