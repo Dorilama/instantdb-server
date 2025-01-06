@@ -1,11 +1,13 @@
 // Notice:
 // adapted from [@instantdb/react-native](https://github.com/instantdb/instant/blob/main/client/packages/react-native/README.md)
 // see instantdb-license.md for license
-import "./patch";
+import placeholder from "./patch";
 import { signal, computed, effect, Signal } from "@preact/signals-core";
 import AlwaysOnline from "./AlwaysOnline";
 import NoStorage from "./NoStorage";
 import version from "./version";
+
+placeholder;
 
 const toValue: SignalFunctions["toValue"] = (maybeSignal) => {
   if (maybeSignal instanceof Signal) {

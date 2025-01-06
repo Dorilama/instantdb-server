@@ -6,3 +6,5 @@ globalThis.window = {
     },
   },
 };
+
+export default {};
