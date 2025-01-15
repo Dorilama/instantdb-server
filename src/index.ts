@@ -103,7 +103,18 @@ class InstantByosServerDatabase<
   static NetworkListener = AlwaysOnline;
 }
 
-export { init, id, tx, lookup, i, signal, computed, effect, Signal };
+export {
+  init,
+  id,
+  tx,
+  lookup,
+  i,
+  signal,
+  computed,
+  effect,
+  Signal,
+  InstantByosServerDatabase,
+};
 export type {
   Config,
   Query,
