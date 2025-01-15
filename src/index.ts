@@ -4,7 +4,7 @@
 import placeholder from "./patch";
 import { signal, computed, effect, Signal } from "@preact/signals-core";
 import AlwaysOnline from "./AlwaysOnline";
-import NoStorage from "./NoStorage";
+import MemosyStorage from "./MemoryStorage";
 import version from "./version";
 
 placeholder;
@@ -99,7 +99,7 @@ function init<
 class InstantByosServerDatabase<
   Schema extends InstantSchemaDef<any, any, any>
 > extends InstantByosAbstractDatabase<Schema> {
-  static Storage = NoStorage;
+  static Storage = MemosyStorage;
   static NetworkListener = AlwaysOnline;
 }
 
