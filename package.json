@@ -1,6 +1,6 @@
 {
   "name": "@dorilama/instantdb-server",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "Unofficial Instant DB reactive server",
   "author": "dorilama",
   "license": "ISC",
@@ -38,16 +38,16 @@
     "dev": "cd ./sandbox/node-server && npm run dev",
     "publish-package": "npm publish --access public",
     "prepublishOnly": "node ./scripts/prepublish.js && npm run build",
-    "update": "npx rimraf package-lock.json node_modules sandbox/node-server/package-lock.json sandbox/node-server/node_modules && npm i --save-exact @dorilama/instantdb-byos@latest && cd sandbox/node-server && npm i"
+    "update": "npm i @dorilama/instantdb-byos@latest"
   },
   "dependencies": {
-    "@dorilama/instantdb-byos": "0.4.2",
+    "@dorilama/instantdb-byos": "0.5.1",
     "@preact/signals-core": "^1.8.0"
   },
   "devDependencies": {
-    "mkdist": "^1.5.5",
+    "mkdist": "^2.2.0",
     "typescript": "^5.5.4",
-    "unbuild": "^2.0.0"
+    "unbuild": "^3.5.0"
   },
   "type": "module"
 }

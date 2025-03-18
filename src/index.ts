@@ -1,13 +1,13 @@
 // Notice:
 // adapted from [@instantdb/react-native](https://github.com/instantdb/instant/blob/main/client/packages/react-native/README.md)
 // see instantdb-license.md for license
-import placeholder from "./patch";
+import patchWindow from "./patch";
 import { signal, computed, effect, Signal } from "@preact/signals-core";
 import AlwaysOnline from "./AlwaysOnline";
 import MemosyStorage from "./MemoryStorage";
 import version from "./version";
 
-placeholder;
+patchWindow;
 
 const toValue: SignalFunctions["toValue"] = (maybeSignal) => {
   if (maybeSignal instanceof Signal) {
@@ -28,6 +28,7 @@ import type {
   InstantObject,
   AuthState,
   User,
+  InstantByosConfig,
 } from "@dorilama/instantdb-byos";
 
 import { i, id, tx, lookup } from "@instantdb/core";
@@ -86,7 +87,7 @@ import type {
  */
 function init<
   Schema extends InstantSchemaDef<any, any, any> = InstantUnknownSchema
->(config: InstantConfig<Schema>) {
+>(config: InstantByosConfig<Schema>) {
   return new InstantByosServerDatabase<Schema>(
     config,
     { signal, computed, effect, toValue },
@@ -112,6 +113,7 @@ export {
   signal,
   computed,
   effect,
+  toValue,
   Signal,
   InstantByosServerDatabase,
 };
@@ -152,4 +154,7 @@ export type {
   InstantRules,
   UpdateParams,
   LinkParams,
+  //
+  InstantByosConfig,
+  MaybeSignal,
 };
